@@ -26,7 +26,5 @@
 		"vite": "^4.4.2"
 	},
 	"type": "module",
-	"dependencies": {
-		"@microsoft/signalr": "^7.0.12"
-	}
+	"dependencies": {}
 }

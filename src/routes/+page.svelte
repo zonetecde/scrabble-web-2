@@ -1,20 +1,33 @@
 <script lang="ts">
-	import * as signalR from '@microsoft/signalr';
+	import GameFinder from './GameFinder.svelte';
+
 	import { onMount } from 'svelte';
-	import SignalRManager from '../ws/signalRManager';
 	import { AppVariables } from '../ws/AppVariables';
 
 	onMount(() => {
-		new SignalRManager();
+		AppVariables.initWsConnection();
 
-		AppVariables.Connection.on('UpdateWaitGame', function (gameJson: string) {});
+		AppVariables.socket.onopen = () => {
+			console.log('WebSocket connection established');
+			// send to the server WS a request named "find-game"
+			AppVariables.socket.send(
+				JSON.stringify({
+					event: 'userLookingForGame',
+					parameters: 5
+				})
+			);
+		};
 
-		AppVariables.Connection.on('GameHasBegun', function (gameJson: string) {});
+		AppVariables.socket.onmessage = (event) => {
+			console.log(`Received message: ${event.data}`);
+		};
+
+		AppVariables.socket.onclose = (event) => {
+			console.log(`WebSocket connection closed with code ${event.code}`);
+		};
 	});
-
-	function handle() {
-		AppVariables.Connection.invoke('UserSearchingForGame', 'tt', 5).catch(function (err) {
-			return console.error(err.toString());
-		});
-	}
 </script>
+
+<div class="w-screen h-screen flex justify-center items-center bg-bg">
+	<GameFinder />
+</div>
